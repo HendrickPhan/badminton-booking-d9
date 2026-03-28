@@ -1,95 +1,93 @@
 # Badminton Management System - TODO List
 
 ## Project Setup
-- [ ] Initialize Next.js project with TypeScript
-- [ ] Set up Supabase project and configure connection
-- [ ] Configure Vercel deployment
-- [ ] Set up environment variables (Supabase URL, keys, etc.)
-- [ ] Set up authentication library (e.g., NextAuth.js or Supabase Auth)
+- [x] Initialize Next.js project with TypeScript
+- [x] Set up Supabase project and configure connection
+- [x] Configure Vercel deployment
+- [x] Set up environment variables (Supabase URL, keys, etc.)
+- [x] Set up authentication library (Supabase Auth)
 
 ## Database Schema Design
-- [ ] Design and create `admins` table
-- [ ] Design and create `users` table
-- [ ] Design and create `centers` table (name, position/coordinates)
-- [ ] Design and create `bookings` table
-- [ ] Design and create `booking_participants` table (for voting/joining)
-- [ ] Design and create `shuttlecocks` table
-- [ ] Design and create `drinks` table
-- [ ] Design and create `payments` table
-- [ ] Design and create `matches` table (for 1v1 and 2v2)
-- [ ] Design and create `rankings` table
+- [x] Design and create `profiles` table
+- [x] Design and create `centers` table (name, position/coordinates)
+- [x] Design and create `bookings` table
+- [x] Design and create `booking_participants` table (for voting/joining)
+- [x] Design and create `booking_consumables` table (shuttlecocks, drinks)
+- [x] Design and create `payments` table
+- [x] Design and create `matches` table (for 1v1 and 2v2)
+- [x] Design and create `rankings` table
 
 ## Admin Features
 ### Authentication
-- [ ] Create default admin account (seed data)
-- [ ] Admin login page
-- [ ] Admin password change functionality
-- [ ] Admin session management
+- [x] Create default admin account (seed data - via Supabase)
+- [x] Admin login page
+- [x] Admin password change functionality
+- [x] Admin session management
 
 ### Admin Management
-- [ ] Admin list view
-- [ ] Add new admin form
-- [ ] Create password for new admins
+- [x] Admin list view
+- [x] Add new admin form
+- [x] Create password for new admins
 - [ ] Delete admin (optional)
 
 ### User Management (by Admin)
-- [ ] User list view for admin
-- [ ] Add new user form
-- [ ] Create password for new users
+- [x] User list view for admin
+- [x] Add new user form
+- [x] Create password for new users
 - [ ] Edit user details
-- [ ] Delete user (optional)
+- [x] Delete user
 
 ## User Features
-- [ ] User login page
-- [ ] User dashboard
-- [ ] Change password functionality
-- [ ] Upload/change avatar
-- [ ] User profile page
+- [x] User login page
+- [x] User dashboard
+- [x] Change password functionality
+- [x] Upload/change avatar
+- [x] User profile page
 
 ## Badminton Center Management
-- [ ] Center list view (admin)
-- [ ] Add new center form (name, position)
-- [ ] Edit center details
-- [ ] Delete center
-- [ ] Display center location on map (nice to have - integrate Google Maps or similar)
+- [x] Center list view (admin)
+- [x] Add new center form (name, position)
+- [x] Edit center details
+- [x] Delete center
+- [x] Display center location on map (link to Google Maps)
 
 ## Booking System
-- [ ] Booking list view (admin)
-- [ ] Create new match booking form
-- [ ] User voting/join interface for bookings
-- [ ] Update booking info (number of courts, pricing)
-- [ ] Booking detail view
+- [x] Booking list view (admin)
+- [x] Create new match booking form
+- [x] User voting/join interface for bookings
+- [x] Update booking info (number of courts, pricing)
+- [x] Booking detail view
 - [ ] Booking status management (upcoming, completed, cancelled)
 
 ## Shuttlecock & Drink Tracking
-- [ ] Add shuttlecock usage to booking
-- [ ] Add drink usage to booking
+- [x] Add shuttlecock usage to booking
+- [x] Add drink usage to booking
 - [ ] Edit shuttlecock/drink quantities
-- [ ] View consumption history per booking
+- [x] View consumption history per booking
 
 ## Payment System
-- [ ] Auto-calculate total cost per booking (court + shuttlecock + drinks)
-- [ ] Split cost among joined participants
-- [ ] Payment status tracking (paid/unpaid)
-- [ ] User mark as paid functionality
-- [ ] Admin payment overview dashboard
+- [x] Auto-calculate total cost per booking (court + shuttlecock + drinks)
+- [x] Split cost among joined participants
+- [x] Payment status tracking (paid/unpaid)
+- [x] User mark as paid functionality
+- [x] Admin payment overview dashboard
 - [ ] Send payment reminders (optional)
 
 ## Match & Ranking System
-- [ ] Match upload interface (support 1v1 and 2v2)
-- [ ] Match result input form
-- [ ] Calculate and update player rankings
-- [ ] Ranking leaderboard view
-- [ ] Match history view for users
+- [x] Match upload interface (support 1v1 and 2v2)
+- [x] Match result input form
+- [ ] Calculate and update player rankings (ELO)
+- [x] Ranking leaderboard view
+- [x] Match history view for users
 - [ ] Filter and search match history
-- [ ] Match detail view
+- [x] Match detail view
 
 ## UI/UX
-- [ ] Responsive design (mobile-friendly)
-- [ ] Navigation menu/sidebar
-- [ ] Loading states
-- [ ] Error handling and display
-- [ ] Success notifications
+- [x] Responsive design (mobile-friendly)
+- [x] Navigation menu/sidebar
+- [x] Loading states
+- [x] Error handling and display
+- [x] Success notifications (toast)
 
 ## Deployment
 - [ ] Configure Vercel project settings
@@ -101,3 +99,23 @@
 - [ ] Email notifications for bookings/payments
 - [ ] Dark mode support
 - [ ] Export data to CSV/PDF
+- [ ] Mobile app (PWA)
+
+---
+
+## Next Steps
+
+1. **Set up Supabase project:**
+   - Create a new project at https://supabase.com
+   - Run the SQL schema from `supabase/schema.sql` in the SQL Editor
+   - Copy the project URL and keys to `.env.local`
+
+2. **Create default admin:**
+   - Sign up through the app or create user in Supabase Auth
+   - Update the user's role to 'admin' in the profiles table
+
+3. **Deploy to Vercel:**
+   - Push code to GitHub
+   - Import project to Vercel
+   - Add environment variables
+   - Deploy

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f97316;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Background circle -->
+  <circle cx="50" cy="50" r="45" fill="url(#grad)"/>
+  <!-- Shuttlecock base -->
+  <ellipse cx="50" cy="70" rx="12" ry="8" fill="white"/>
+  <!-- Shuttlecock feathers -->
+  <path d="M38 70 Q30 45 50 20 Q70 45 62 70" fill="white" opacity="0.9"/>
+  <!-- Feather lines -->
+  <path d="M42 68 Q38 50 50 30" stroke="#f97316" stroke-width="2" fill="none"/>
+  <path d="M50 68 Q50 48 50 28" stroke="#f97316" stroke-width="2" fill="none"/>
+  <path d="M58 68 Q62 50 50 30" stroke="#f97316" stroke-width="2" fill="none"/>
+</svg>
