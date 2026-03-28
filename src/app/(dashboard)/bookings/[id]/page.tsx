@@ -46,7 +46,7 @@ interface BookingDetail {
   courts_count: number
   court_price: number
   status: 'pending_registration' | 'confirmed' | 'pending_payment' | 'completed' | 'cancelled'
-  centers: { name: string; address: string | null } | null
+  centers: { name: string; address: string | null; latitude: number | null; longitude: number | null } | null
   booking_participants: Array<{
     id: string
     user_id: string
@@ -431,6 +431,25 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
                 <Pencil className="mr-2 h-4 w-4" />
                 Chỉnh sửa thông tin
               </Button>
+            </div>
+          )}
+          {booking.centers?.latitude && booking.centers?.longitude && (
+            <div className="px-6 pb-4">
+              <div className="rounded-lg overflow-hidden border">
+                <iframe
+                  src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${booking.centers.latitude},${booking.centers.longitude}&zoom=16`}
+                  width="100%"
+                  height="200"
+                  style={{ border: 0 }}
+                  loading="lazy"
+                  allowFullScreen
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title={`Vị trí ${booking.centers.name}`}
+                />
+              </div>
+              {booking.centers.address && (
+                <p className="text-sm text-muted-foreground mt-2">{booking.centers.address}</p>
+              )}
             </div>
           )}
         </Card>

@@ -236,7 +236,7 @@ export default function UsersPage() {
                     onValueChange={(value) => value && setFormData({ ...formData, role: value as 'user' | 'admin' })}
                   >
                     <SelectTrigger>
-                      <SelectValue />
+                      <span>{formData.role === 'admin' ? 'Quản trị viên' : 'Người dùng'}</span>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="user">Người dùng</SelectItem>
@@ -251,7 +251,9 @@ export default function UsersPage() {
                     onValueChange={(value) => setFormData({ ...formData, gender: value as 'male' | 'female' | 'other' | '' })}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Chọn giới tính" />
+                      <span>
+                        {formData.gender === 'male' ? 'Nam' : formData.gender === 'female' ? 'Nữ' : formData.gender === 'other' ? 'Khác' : 'Chọn giới tính'}
+                      </span>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="">Không chọn</SelectItem>
@@ -287,21 +289,13 @@ export default function UsersPage() {
               <p className="mt-4 text-muted-foreground">Chưa có người dùng nào</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Người dùng</TableHead>
-                    <TableHead>Giới tính</TableHead>
-                    <TableHead>Vai trò</TableHead>
-                    <TableHead>Ngày tạo</TableHead>
-                    <TableHead className="text-right">Thao tác</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {users.map((user) => (
-                    <TableRow key={user.id}>
-                      <TableCell>
+            <>
+              {/* Mobile Card View */}
+              <div className="flex flex-col gap-3 md:hidden">
+                {users.map((user) => (
+                  <Card key={user.id} className="border shadow-sm">
+                    <CardContent className="p-4 space-y-3">
+                      <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <Avatar>
                             <AvatarImage src={user.avatar_url || undefined} />
@@ -310,43 +304,120 @@ export default function UsersPage() {
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <span className="font-medium">{user.username}</span>
+                            <p className="font-medium">{user.username}</p>
                             {user.email && (
                               <p className="text-xs text-muted-foreground">{user.email}</p>
                             )}
                           </div>
                         </div>
-                      </TableCell>
-                      <TableCell>
-                        {user.gender === 'male' ? (
-                          <Badge className="bg-blue-500">Nam</Badge>
-                        ) : user.gender === 'female' ? (
-                          <Badge className="bg-pink-500">Nữ</Badge>
-                        ) : user.gender === 'other' ? (
-                          <Badge className="bg-gray-500">Khác</Badge>
-                        ) : (
-                          <span className="text-muted-foreground">-</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
                         <Badge className={user.role === 'admin' ? 'bg-gradient-to-r from-violet-500 to-purple-500' : ''}>
                           {user.role === 'admin' ? 'Quản trị' : 'Người dùng'}
                         </Badge>
-                      </TableCell>
-                      <TableCell>{new Date(user.created_at).toLocaleDateString('vi-VN')}</TableCell>
-                      <TableCell className="text-right">
-                        <Button variant="ghost" size="icon" onClick={() => handleOpenDialog(user)}>
-                          <Pencil className="h-4 w-4" />
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-2">
+                          <span className="text-muted-foreground">Giới tính:</span>
+                          {user.gender === 'male' ? (
+                            <Badge className="bg-blue-500 text-xs">Nam</Badge>
+                          ) : user.gender === 'female' ? (
+                            <Badge className="bg-pink-500 text-xs">Nữ</Badge>
+                          ) : user.gender === 'other' ? (
+                            <Badge className="bg-gray-500 text-xs">Khác</Badge>
+                          ) : (
+                            <span className="text-muted-foreground">-</span>
+                          )}
+                        </div>
+                        <span className="text-muted-foreground">
+                          {new Date(user.created_at).toLocaleDateString('vi-VN')}
+                        </span>
+                      </div>
+                      <div className="flex gap-2 pt-2 border-t">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1"
+                          onClick={() => handleOpenDialog(user)}
+                        >
+                          <Pencil className="h-4 w-4 mr-1" />
+                          Sửa
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDelete(user.id)}>
-                          <Trash2 className="h-4 w-4 text-red-500" />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1 text-red-500 hover:text-red-600"
+                          onClick={() => handleDelete(user.id)}
+                        >
+                          <Trash2 className="h-4 w-4 mr-1" />
+                          Xóa
                         </Button>
-                      </TableCell>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              {/* Desktop Table View */}
+              <div className="hidden md:block overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Người dùng</TableHead>
+                      <TableHead>Giới tính</TableHead>
+                      <TableHead>Vai trò</TableHead>
+                      <TableHead>Ngày tạo</TableHead>
+                      <TableHead className="text-right">Thao tác</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                  </TableHeader>
+                  <TableBody>
+                    {users.map((user) => (
+                      <TableRow key={user.id}>
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <Avatar>
+                              <AvatarImage src={user.avatar_url || undefined} />
+                              <AvatarFallback className="bg-gradient-to-br from-violet-500 to-purple-600 text-white">
+                                {user.username.charAt(0).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <span className="font-medium">{user.username}</span>
+                              {user.email && (
+                                <p className="text-xs text-muted-foreground">{user.email}</p>
+                              )}
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {user.gender === 'male' ? (
+                            <Badge className="bg-blue-500">Nam</Badge>
+                          ) : user.gender === 'female' ? (
+                            <Badge className="bg-pink-500">Nữ</Badge>
+                          ) : user.gender === 'other' ? (
+                            <Badge className="bg-gray-500">Khác</Badge>
+                          ) : (
+                            <span className="text-muted-foreground">-</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <Badge className={user.role === 'admin' ? 'bg-gradient-to-r from-violet-500 to-purple-500' : ''}>
+                            {user.role === 'admin' ? 'Quản trị' : 'Người dùng'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{new Date(user.created_at).toLocaleDateString('vi-VN')}</TableCell>
+                        <TableCell className="text-right">
+                          <Button variant="ghost" size="icon" onClick={() => handleOpenDialog(user)}>
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => handleDelete(user.id)}>
+                            <Trash2 className="h-4 w-4 text-red-500" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
