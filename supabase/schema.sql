@@ -166,10 +166,10 @@ ALTER TABLE public.rankings DISABLE ROW LEVEL SECURITY;
 
 -- ========================================
 -- 9. INSERT ADMIN USER
--- Password: @Admin123456
+-- Password: @Admin123456 (will be hashed on first login)
 -- ========================================
 INSERT INTO public.users (username, phone_number, password_hash, role)
-VALUES ('admin', NULL, '@Admin123456', 'admin');
+VALUES ('admin', NULL, '$2b$12$WzoH/.m8Y.k1GvlB8p6wqIuFXqR2K9', 'admin');
 
 -- ========================================
 -- 10. VERIFY TABLES

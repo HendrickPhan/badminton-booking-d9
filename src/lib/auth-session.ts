@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers'
 import { SignJWT, jwtVerify } from 'jose'
 import { getDB } from './db'
+import { hashPassword, comparePassword } from './password'
 
 const SECRET_KEY = new TextEncoder().encode(
   process.env.JWT_SECRET || 'your-secret-key-change-in-production'
@@ -59,9 +60,9 @@ export async function authenticateUser(username: string, password: string): Prom
 
   if (error || !user) return null
 
-  // Simple password check
+  // Compare hashed password using bcrypt
   const userData = user as unknown as { id: string; username: string; role: string; password_hash: string }
-  const passwordMatch = userData.password_hash === password
+  const passwordMatch = await comparePassword(password, userData.password_hash)
 
   if (!passwordMatch) return null
 

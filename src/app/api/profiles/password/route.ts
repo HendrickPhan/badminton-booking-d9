@@ -1,5 +1,6 @@
 import { getDB } from '@/lib/db'
 import { getSession } from '@/lib/auth-session'
+import { hashPassword } from '@/lib/password'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function PUT(request: NextRequest) {
@@ -15,11 +16,14 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ error: 'Mật khẩu phải có ít nhất 6 ký tự' }, { status: 400 })
   }
 
+  // Hash the new password before storing
+  const hashedPassword = await hashPassword(newPassword)
+
   const db = getDB()
   const { error } = await db
     .from('users')
     .update({
-      password_hash: newPassword,
+      password_hash: hashedPassword,
     } as never)
     .eq('id', session.id)
 

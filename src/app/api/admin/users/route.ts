@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth-session'
 import { getDB } from '@/lib/db'
+import { hashPassword } from '@/lib/password'
 
 async function checkAdmin() {
   const session = await getSession()
@@ -48,12 +49,15 @@ export async function POST(request: NextRequest) {
 
   const db = getDB()
 
+  // Hash password before storing
+  const hashedPassword = await hashPassword(password)
+
   const { data, error } = await db
     .from('users')
     .insert({
       username,
       phone_number: phone_number || null,
-      password_hash: password,
+      password_hash: hashedPassword,
       gender: gender || null,
       role,
     } as never)
@@ -114,7 +118,7 @@ export async function PUT(request: NextRequest) {
 
   // Only update password if provided
   if (password) {
-    updateData.password_hash = password
+    updateData.password_hash = await hashPassword(password)
   }
 
   const { data, error } = await db
