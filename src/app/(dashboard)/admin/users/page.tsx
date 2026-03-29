@@ -41,7 +41,7 @@ export default function UsersPage() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingUser, setEditingUser] = useState<User | null>(null)
   const [formData, setFormData] = useState({
-    email: '',
+    phone_number: '',
     password: '',
     username: '',
     gender: 'male' as '' | 'male' | 'female' | 'other',
@@ -64,7 +64,7 @@ export default function UsersPage() {
   }, [])
 
   const resetForm = () => {
-    setFormData({ email: '', password: '', username: '', gender: 'male', role: 'user' })
+    setFormData({ phone_number: '', password: '', username: '', gender: 'male', role: 'user' })
     setEditingUser(null)
   }
 
@@ -72,7 +72,7 @@ export default function UsersPage() {
     if (user) {
       setEditingUser(user)
       setFormData({
-        email: user.email || '',
+        phone_number: user.phone_number || '',
         password: '',
         username: user.username,
         gender: (user.gender as '' | 'male' | 'female' | 'other') || '',
@@ -95,7 +95,7 @@ export default function UsersPage() {
         body: JSON.stringify({
           userId: editingUser.id,
           username: formData.username,
-          email: formData.email,
+          phone_number: formData.phone_number,
           gender: formData.gender,
           role: formData.role,
           password: formData.password || undefined,
@@ -185,13 +185,13 @@ export default function UsersPage() {
             <form onSubmit={handleSubmit}>
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="phone_number">Số điện thoại</Label>
                   <Input
-                    id="email"
-                    type="email"
-                    placeholder="email@example.com"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    id="phone_number"
+                    type="tel"
+                    placeholder="0901234567"
+                    value={formData.phone_number}
+                    onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
                   />
                 </div>
                 {!editingUser && (
@@ -305,8 +305,8 @@ export default function UsersPage() {
                           </Avatar>
                           <div>
                             <p className="font-medium">{user.username}</p>
-                            {user.email && (
-                              <p className="text-xs text-muted-foreground">{user.email}</p>
+                            {user.phone_number && (
+                              <p className="text-xs text-muted-foreground">{user.phone_number}</p>
                             )}
                           </div>
                         </div>
@@ -362,6 +362,7 @@ export default function UsersPage() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Người dùng</TableHead>
+                      <TableHead>Điện thoại</TableHead>
                       <TableHead>Giới tính</TableHead>
                       <TableHead>Vai trò</TableHead>
                       <TableHead>Ngày tạo</TableHead>
@@ -379,14 +380,10 @@ export default function UsersPage() {
                                 {user.username.charAt(0).toUpperCase()}
                               </AvatarFallback>
                             </Avatar>
-                            <div>
-                              <span className="font-medium">{user.username}</span>
-                              {user.email && (
-                                <p className="text-xs text-muted-foreground">{user.email}</p>
-                              )}
-                            </div>
+                            <span className="font-medium">{user.username}</span>
                           </div>
                         </TableCell>
+                        <TableCell>{user.phone_number || '-'}</TableCell>
                         <TableCell>
                           {user.gender === 'male' ? (
                             <Badge className="bg-blue-500">Nam</Badge>

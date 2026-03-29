@@ -12,7 +12,7 @@ export async function GET() {
   const db = getDB()
   const { data, error } = await db
     .from('users')
-    .select('id, username, email, avatar_url, gender, role, created_at')
+    .select('id, username, phone_number, avatar_url, gender, role, created_at')
     .eq('id', session.id)
     .single()
 

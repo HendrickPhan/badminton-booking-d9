@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
 import {
   Table,
   TableBody,
@@ -61,52 +62,116 @@ export default function RankingsPage() {
     return <span className="font-bold text-muted-foreground">{index + 1}</span>
   }
 
-  const renderTable = (data: RankingData[], type: 'singles' | 'doubles') => (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-12">Hạng</TableHead>
-          <TableHead>Người chơi</TableHead>
-          <TableHead className="text-right">Điểm</TableHead>
-          <TableHead className="text-right">Thắng</TableHead>
-          <TableHead className="text-right">Thua</TableHead>
-          <TableHead className="text-right">Tỷ lệ thắng</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {data.map((ranking, index) => (
-          <TableRow key={ranking.id}>
-            <TableCell>{getRankBadge(index)}</TableCell>
-            <TableCell>
-              <div className="flex items-center gap-3">
-                <Avatar>
-                  <AvatarImage src={ranking.profiles?.avatar_url || undefined} />
-                  <AvatarFallback className="bg-gradient-to-br from-violet-500 to-purple-600 text-white">
-                    {ranking.profiles?.username?.charAt(0).toUpperCase() || 'U'}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="font-medium">{ranking.profiles?.username || '-'}</span>
+  const getRankBadgeSmall = (index: number) => {
+    if (index === 0) return <Trophy className="h-4 w-4 text-yellow-500" />
+    if (index === 1) return <Medal className="h-4 w-4 text-gray-400" />
+    if (index === 2) return <Medal className="h-4 w-4 text-amber-600" />
+    return <span className="font-bold text-sm">{index + 1}</span>
+  }
+
+  const renderMobileCards = (data: RankingData[], type: 'singles' | 'doubles') => (
+    <div className="flex flex-col gap-3">
+      {data.map((ranking, index) => (
+        <Card key={ranking.id} className="border shadow-sm">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center w-8">
+                {getRankBadgeSmall(index)}
               </div>
-            </TableCell>
-            <TableCell className="text-right font-bold text-lg">
-              {type === 'singles' ? ranking.singles_rating : ranking.doubles_rating}
-            </TableCell>
-            <TableCell className="text-right text-green-600 font-medium">
-              {type === 'singles' ? ranking.singles_wins : ranking.doubles_wins}
-            </TableCell>
-            <TableCell className="text-right text-red-600 font-medium">
-              {type === 'singles' ? ranking.singles_losses : ranking.doubles_losses}
-            </TableCell>
-            <TableCell className="text-right font-medium">
-              {type === 'singles'
-                ? getWinRate(ranking.singles_wins, ranking.singles_losses)
-                : getWinRate(ranking.doubles_wins, ranking.doubles_losses)}
-              %
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+              <Avatar className="h-10 w-10">
+                <AvatarImage src={ranking.profiles?.avatar_url || undefined} />
+                <AvatarFallback className="bg-gradient-to-br from-violet-500 to-purple-600 text-white">
+                  {ranking.profiles?.username?.charAt(0).toUpperCase() || 'U'}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium truncate">{ranking.profiles?.username || '-'}</p>
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="font-bold text-lg">
+                    {type === 'singles' ? ranking.singles_rating : ranking.doubles_rating}
+                  </span>
+                  <span className="text-muted-foreground">điểm</span>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="text-green-600 font-medium">
+                    {type === 'singles' ? ranking.singles_wins : ranking.doubles_wins}W
+                  </span>
+                  <span className="text-muted-foreground">-</span>
+                  <span className="text-red-600 font-medium">
+                    {type === 'singles' ? ranking.singles_losses : ranking.doubles_losses}L
+                  </span>
+                </div>
+                <Badge variant="secondary" className="mt-1">
+                  {type === 'singles'
+                    ? getWinRate(ranking.singles_wins, ranking.singles_losses)
+                    : getWinRate(ranking.doubles_wins, ranking.doubles_losses)}%
+                </Badge>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  )
+
+  const renderTable = (data: RankingData[], type: 'singles' | 'doubles') => (
+    <>
+      {/* Mobile Card View */}
+      <div className="md:hidden">
+        {renderMobileCards(data, type)}
+      </div>
+
+      {/* Desktop Table View */}
+      <div className="hidden md:block overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-12">Hạng</TableHead>
+              <TableHead>Người chơi</TableHead>
+              <TableHead className="text-right">Điểm</TableHead>
+              <TableHead className="text-right">Thắng</TableHead>
+              <TableHead className="text-right">Thua</TableHead>
+              <TableHead className="text-right">Tỷ lệ thắng</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {data.map((ranking, index) => (
+              <TableRow key={ranking.id}>
+                <TableCell>{getRankBadge(index)}</TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-3">
+                    <Avatar>
+                      <AvatarImage src={ranking.profiles?.avatar_url || undefined} />
+                      <AvatarFallback className="bg-gradient-to-br from-violet-500 to-purple-600 text-white">
+                        {ranking.profiles?.username?.charAt(0).toUpperCase() || 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="font-medium">{ranking.profiles?.username || '-'}</span>
+                  </div>
+                </TableCell>
+                <TableCell className="text-right font-bold text-lg">
+                  {type === 'singles' ? ranking.singles_rating : ranking.doubles_rating}
+                </TableCell>
+                <TableCell className="text-right text-green-600 font-medium">
+                  {type === 'singles' ? ranking.singles_wins : ranking.doubles_wins}
+                </TableCell>
+                <TableCell className="text-right text-red-600 font-medium">
+                  {type === 'singles' ? ranking.singles_losses : ranking.doubles_losses}
+                </TableCell>
+                <TableCell className="text-right font-medium">
+                  {type === 'singles'
+                    ? getWinRate(ranking.singles_wins, ranking.singles_losses)
+                    : getWinRate(ranking.doubles_wins, ranking.doubles_losses)}
+                  %
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </>
   )
 
   return (

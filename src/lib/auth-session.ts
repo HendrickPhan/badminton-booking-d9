@@ -77,7 +77,7 @@ export async function getUserById(id: string) {
 
   const { data: user } = await db
     .from('users')
-    .select('id, username, email, avatar_url, role, created_at')
+    .select('id, username, phone_number, avatar_url, role, created_at')
     .eq('id', id)
     .single()
 

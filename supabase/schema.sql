@@ -26,7 +26,7 @@ DROP FUNCTION IF EXISTS public.handle_new_user();
 CREATE TABLE public.users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   username TEXT UNIQUE NOT NULL,
-  email TEXT UNIQUE,
+  phone_number TEXT UNIQUE,
   password_hash TEXT NOT NULL,
   avatar_url TEXT,
   gender TEXT CHECK (gender IN ('male', 'female', 'other')),
@@ -168,8 +168,8 @@ ALTER TABLE public.rankings DISABLE ROW LEVEL SECURITY;
 -- 9. INSERT ADMIN USER
 -- Password: @Admin123456
 -- ========================================
-INSERT INTO public.users (username, email, password_hash, role)
-VALUES ('admin', 'mhieu25101998@gmail.com', '@Admin123456', 'admin');
+INSERT INTO public.users (username, phone_number, password_hash, role)
+VALUES ('admin', NULL, '@Admin123456', 'admin');
 
 -- ========================================
 -- 10. VERIFY TABLES
@@ -184,4 +184,4 @@ UNION ALL
 SELECT 'rankings', COUNT(*) FROM public.rankings;
 
 -- Show admin user
-SELECT id, username, email, role, created_at FROM public.users WHERE username = 'admin';
+SELECT id, username, phone_number, role, created_at FROM public.users WHERE username = 'admin';

@@ -22,7 +22,7 @@ import { User, Shield, Calendar, Users } from 'lucide-react'
 interface UserData {
   id: string
   username: string
-  email: string | null
+  phone_number: string | null
   avatar_url: string | null
   gender: 'male' | 'female' | 'other' | null
   role: 'user' | 'admin'
@@ -175,7 +175,9 @@ export default function ProfilePage() {
               <Label htmlFor="gender">Giới tính</Label>
               <Select value={gender} onValueChange={(v) => v !== null && setGender(v)}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Chọn giới tính" />
+                  <span>
+                    {gender === 'male' ? 'Nam' : gender === 'female' ? 'Nữ' : gender === 'other' ? 'Khác' : 'Chọn giới tính'}
+                  </span>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="">Không chọn</SelectItem>

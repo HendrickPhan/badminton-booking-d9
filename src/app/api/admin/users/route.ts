@@ -23,7 +23,7 @@ export async function GET() {
   const db = getDB()
   const { data, error } = await db
     .from('users')
-    .select('id, username, email, avatar_url, gender, role, created_at')
+    .select('id, username, phone_number, avatar_url, gender, role, created_at')
     .order('created_at', { ascending: false })
 
   if (error) {
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: adminCheck.error }, { status: adminCheck.status })
   }
 
-  const { email, password, username, role, gender } = await request.json()
+  const { phone_number, password, username, role, gender } = await request.json()
 
   if (!username || !password || !role) {
     return NextResponse.json({ error: 'Thiếu thông tin bắt buộc' }, { status: 400 })
@@ -52,12 +52,12 @@ export async function POST(request: NextRequest) {
     .from('users')
     .insert({
       username,
-      email: email || null,
+      phone_number: phone_number || null,
       password_hash: password,
       gender: gender || null,
       role,
     } as never)
-    .select('id, username, email, avatar_url, gender, role, created_at')
+    .select('id, username, phone_number, avatar_url, gender, role, created_at')
     .single()
 
   if (error) {
@@ -97,7 +97,7 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ error: adminCheck.error }, { status: adminCheck.status })
   }
 
-  const { userId, username, email, role, gender, password } = await request.json()
+  const { userId, username, phone_number, role, gender, password } = await request.json()
 
   if (!userId) {
     return NextResponse.json({ error: 'Thiếu userId' }, { status: 400 })
@@ -107,7 +107,7 @@ export async function PUT(request: NextRequest) {
 
   const updateData: Record<string, unknown> = {
     username,
-    email: email || null,
+    phone_number: phone_number || null,
     gender: gender || null,
     role,
   }
@@ -121,7 +121,7 @@ export async function PUT(request: NextRequest) {
     .from('users')
     .update(updateData as never)
     .eq('id', userId)
-    .select('id, username, email, avatar_url, gender, role, created_at')
+    .select('id, username, phone_number, avatar_url, gender, role, created_at')
     .single()
 
   if (error) {

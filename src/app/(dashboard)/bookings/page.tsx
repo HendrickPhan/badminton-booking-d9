@@ -30,7 +30,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
-import { Plus, Eye, Calendar as CalendarIcon, UserCheck, UserX, Users, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Plus, Eye, Calendar as CalendarIcon, UserCheck, UserX, Users, ChevronLeft, ChevronRight, Share2 } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface Center {
@@ -176,6 +176,32 @@ export default function BookingsPage() {
     }
     const { label, className } = config[userStatus] || { label: userStatus, className: '' }
     return <Badge className={className}>{label}</Badge>
+  }
+
+  const handleShare = async (booking: Booking) => {
+    const shareUrl = `${window.location.origin}/bookings/${booking.id}`
+    const shareTitle = `Đặt sân cầu lông - ${booking.centers?.name || 'Chưa chọn sân'}`
+    const shareText = `Tham gia trận đấu cầu lông vào ${new Date(booking.match_date).toLocaleDateString('vi-VN')} lúc ${booking.start_time} - ${booking.end_time} tại ${booking.centers?.name || 'địa điểm'}!`
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: shareUrl,
+        })
+      } catch {
+        // User cancelled or share failed
+      }
+    } else {
+      // Fallback: copy to clipboard
+      try {
+        await navigator.clipboard.writeText(shareUrl)
+        toast.success('Đã sao chép liên kết')
+      } catch {
+        toast.error('Không thể sao chép liên kết')
+      }
+    }
   }
 
   return (
@@ -369,6 +395,15 @@ export default function BookingsPage() {
                           <Eye className="h-4 w-4 mr-1" />
                           Chi tiết
                         </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1"
+                          onClick={() => handleShare(booking)}
+                        >
+                          <Share2 className="h-4 w-4 mr-1" />
+                          Chia sẻ
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
@@ -438,6 +473,13 @@ export default function BookingsPage() {
                               onClick={() => router.push(`/bookings/${booking.id}`)}
                             >
                               <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleShare(booking)}
+                            >
+                              <Share2 className="h-4 w-4" />
                             </Button>
                           </div>
                         </TableCell>

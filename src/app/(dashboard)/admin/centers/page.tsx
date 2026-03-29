@@ -237,50 +237,103 @@ export default function CentersPage() {
               <p className="mt-4 text-muted-foreground">Chưa có sân cầu nào</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Tên sân</TableHead>
-                    <TableHead>Địa chỉ</TableHead>
-                    <TableHead>Vị trí</TableHead>
-                    <TableHead>Ngày tạo</TableHead>
-                    <TableHead className="text-right">Thao tác</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {centers.map((center) => (
-                    <TableRow key={center.id}>
-                      <TableCell className="font-medium">{center.name}</TableCell>
-                      <TableCell>{center.address || '-'}</TableCell>
-                      <TableCell>
-                        {center.latitude && center.longitude ? (
+            <>
+              {/* Mobile Card View */}
+              <div className="flex flex-col gap-3 md:hidden">
+                {centers.map((center) => (
+                  <Card key={center.id} className="border shadow-sm">
+                    <CardContent className="p-4 space-y-3">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <p className="font-medium">{center.name}</p>
+                          <p className="text-sm text-muted-foreground">{center.address || 'Chưa có địa chỉ'}</p>
+                        </div>
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(center.created_at).toLocaleDateString('vi-VN')}
+                        </span>
+                      </div>
+                      <div className="flex gap-2 pt-2 border-t">
+                        {center.latitude && center.longitude && (
                           <Button
-                            variant="ghost"
+                            variant="outline"
                             size="sm"
+                            className="flex-1"
                             onClick={() => openMap(center.latitude, center.longitude)}
                           >
-                            <MapPinIcon className="mr-2 h-4 w-4" />
-                            Xem bản đồ
+                            <MapPinIcon className="h-4 w-4 mr-1" />
+                            Bản đồ
                           </Button>
-                        ) : (
-                          '-'
                         )}
-                      </TableCell>
-                      <TableCell>{new Date(center.created_at).toLocaleDateString('vi-VN')}</TableCell>
-                      <TableCell className="text-right">
-                        <Button variant="ghost" size="icon" onClick={() => handleOpenDialog(center)}>
-                          <Pencil className="h-4 w-4" />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1"
+                          onClick={() => handleOpenDialog(center)}
+                        >
+                          <Pencil className="h-4 w-4 mr-1" />
+                          Sửa
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDelete(center.id)}>
-                          <Trash2 className="h-4 w-4 text-red-500" />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1 text-red-500 hover:text-red-600"
+                          onClick={() => handleDelete(center.id)}
+                        >
+                          <Trash2 className="h-4 w-4 mr-1" />
+                          Xóa
                         </Button>
-                      </TableCell>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              {/* Desktop Table View */}
+              <div className="hidden md:block overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Tên sân</TableHead>
+                      <TableHead>Địa chỉ</TableHead>
+                      <TableHead>Vị trí</TableHead>
+                      <TableHead>Ngày tạo</TableHead>
+                      <TableHead className="text-right">Thao tác</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                  </TableHeader>
+                  <TableBody>
+                    {centers.map((center) => (
+                      <TableRow key={center.id}>
+                        <TableCell className="font-medium">{center.name}</TableCell>
+                        <TableCell>{center.address || '-'}</TableCell>
+                        <TableCell>
+                          {center.latitude && center.longitude ? (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => openMap(center.latitude, center.longitude)}
+                            >
+                              <MapPinIcon className="mr-2 h-4 w-4" />
+                              Xem bản đồ
+                            </Button>
+                          ) : (
+                            '-'
+                          )}
+                        </TableCell>
+                        <TableCell>{new Date(center.created_at).toLocaleDateString('vi-VN')}</TableCell>
+                        <TableCell className="text-right">
+                          <Button variant="ghost" size="icon" onClick={() => handleOpenDialog(center)}>
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => handleDelete(center.id)}>
+                            <Trash2 className="h-4 w-4 text-red-500" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>

@@ -33,7 +33,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { ArrowLeft, Check, X, Plus, CreditCard, Calendar as CalendarIcon, MapPin, Users, Trash2, Pencil } from 'lucide-react'
+import { ArrowLeft, Check, X, Plus, CreditCard, Calendar as CalendarIcon, MapPin, Users, Trash2, Pencil, Share2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useConfirmDialog } from '@/components/confirm-dialog'
 
@@ -341,6 +341,34 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount)
   }
 
+  const handleShare = async () => {
+    if (!booking) return
+
+    const shareUrl = window.location.href
+    const shareTitle = `Đặt sân cầu lông - ${booking.centers?.name || 'Chưa chọn sân'}`
+    const shareText = `Tham gia trận đấu cầu lông vào ${new Date(booking.match_date).toLocaleDateString('vi-VN')} lúc ${booking.start_time} - ${booking.end_time} tại ${booking.centers?.name || 'địa điểm'}!`
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: shareUrl,
+        })
+      } catch {
+        // User cancelled or share failed
+      }
+    } else {
+      // Fallback: copy to clipboard
+      try {
+        await navigator.clipboard.writeText(shareUrl)
+        toast.success('Đã sao chép liên kết')
+      } catch {
+        toast.error('Không thể sao chép liên kết')
+      }
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -367,21 +395,27 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => router.push('/bookings')}>
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 shadow-lg">
-            <CalendarIcon className="h-5 w-5 text-white" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold lg:text-3xl">Chi tiết đặt sân</h1>
-            <p className="text-sm text-muted-foreground">
-              {new Date(booking.match_date).toLocaleDateString('vi-VN')} | {booking.start_time} - {booking.end_time}
-            </p>
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={() => router.push('/bookings')}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 shadow-lg">
+              <CalendarIcon className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold lg:text-3xl">Chi tiết đặt sân</h1>
+              <p className="text-sm text-muted-foreground">
+                {new Date(booking.match_date).toLocaleDateString('vi-VN')} | {booking.start_time} - {booking.end_time}
+              </p>
+            </div>
           </div>
         </div>
+        <Button variant="outline" onClick={handleShare}>
+          <Share2 className="h-4 w-4 mr-2" />
+          Chia sẻ
+        </Button>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
@@ -538,58 +572,100 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
                   <p className="text-muted-foreground">Chưa có ai tham gia</p>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Người dùng</TableHead>
-                        <TableHead>Trạng thái</TableHead>
-                        {isAdmin && <TableHead className="text-right">Thao tác</TableHead>}
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {booking.booking_participants.map((p) => (
-                        <TableRow key={p.id}>
-                          <TableCell>
-                            <div className="flex items-center gap-3">
-                              <Avatar>
-                                <AvatarImage src={p.user?.avatar_url || undefined} />
-                                <AvatarFallback className="bg-gradient-to-br from-violet-500 to-purple-600 text-white">
-                                  {p.user?.username?.charAt(0).toUpperCase() || '?'}
-                                </AvatarFallback>
-                              </Avatar>
-                              <span className="font-medium">{p.user?.username || 'Người dùng không xác định'}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
+                <>
+                  {/* Mobile Card View */}
+                  <div className="flex flex-col gap-3 md:hidden">
+                    {booking.booking_participants.map((p) => (
+                      <div key={p.id} className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-8 w-8">
+                            <AvatarImage src={p.user?.avatar_url || undefined} />
+                            <AvatarFallback className="bg-gradient-to-br from-violet-500 to-purple-600 text-white text-sm">
+                              {p.user?.username?.charAt(0).toUpperCase() || '?'}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="font-medium text-sm">{p.user?.username || 'Người dùng không xác định'}</p>
                             <Badge
                               className={
                                 p.status === 'joined'
-                                  ? 'bg-green-500'
+                                  ? 'bg-green-500 text-xs'
                                   : p.status === 'declined'
-                                  ? 'bg-red-500'
-                                  : 'bg-gray-500'
+                                  ? 'bg-red-500 text-xs'
+                                  : 'bg-gray-500 text-xs'
                               }
                             >
                               {p.status === 'joined' ? 'Đã tham gia' : p.status === 'declined' ? 'Đã từ chối' : 'Chờ phản hồi'}
                             </Badge>
-                          </TableCell>
-                          {isAdmin && (
-                            <TableCell className="text-right">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleRemoveUser(p.id)}
-                              >
-                                <Trash2 className="h-4 w-4 text-red-500" />
-                              </Button>
-                            </TableCell>
-                          )}
+                          </div>
+                        </div>
+                        {isAdmin && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleRemoveUser(p.id)}
+                          >
+                            <Trash2 className="h-4 w-4 text-red-500" />
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Desktop Table View */}
+                  <div className="hidden md:block overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Người dùng</TableHead>
+                          <TableHead>Trạng thái</TableHead>
+                          {isAdmin && <TableHead className="text-right">Thao tác</TableHead>}
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
+                      </TableHeader>
+                      <TableBody>
+                        {booking.booking_participants.map((p) => (
+                          <TableRow key={p.id}>
+                            <TableCell>
+                              <div className="flex items-center gap-3">
+                                <Avatar>
+                                  <AvatarImage src={p.user?.avatar_url || undefined} />
+                                  <AvatarFallback className="bg-gradient-to-br from-violet-500 to-purple-600 text-white">
+                                    {p.user?.username?.charAt(0).toUpperCase() || '?'}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <span className="font-medium">{p.user?.username || 'Người dùng không xác định'}</span>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge
+                                className={
+                                  p.status === 'joined'
+                                    ? 'bg-green-500'
+                                    : p.status === 'declined'
+                                    ? 'bg-red-500'
+                                    : 'bg-gray-500'
+                                }
+                              >
+                                {p.status === 'joined' ? 'Đã tham gia' : p.status === 'declined' ? 'Đã từ chối' : 'Chờ phản hồi'}
+                              </Badge>
+                            </TableCell>
+                            {isAdmin && (
+                              <TableCell className="text-right">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleRemoveUser(p.id)}
+                                >
+                                  <Trash2 className="h-4 w-4 text-red-500" />
+                                </Button>
+                              </TableCell>
+                            )}
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </>
               )}
             </CardContent>
           </Card>
@@ -607,58 +683,100 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
                   <p className="mt-4 text-muted-foreground">Chưa có thanh toán nào</p>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Người dùng</TableHead>
-                        <TableHead>Số tiền</TableHead>
-                        <TableHead>Trạng thái</TableHead>
-                        <TableHead className="text-right">Thao tác</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {booking.payments.map((p) => {
-                        const isOwnPayment = p.user_id === currentUser?.id
-                        const canTogglePayment = isAdmin || (canMarkPaid && isOwnPayment)
+                <>
+                  {/* Mobile Card View */}
+                  <div className="flex flex-col gap-3 md:hidden">
+                    {booking.payments.map((p) => {
+                      const isOwnPayment = p.user_id === currentUser?.id
+                      const canTogglePayment = isAdmin || (canMarkPaid && isOwnPayment)
 
-                        return (
-                          <TableRow key={p.id}>
-                            <TableCell>
-                              <div className="flex items-center gap-3">
-                                <Avatar>
-                                  <AvatarImage src={p.user?.avatar_url || undefined} />
-                                  <AvatarFallback className="bg-gradient-to-br from-violet-500 to-purple-600 text-white">
-                                    {p.user?.username?.charAt(0).toUpperCase() || '?'}
-                                  </AvatarFallback>
-                                </Avatar>
-                                <span className="font-medium">{p.user?.username || 'Người dùng không xác định'}</span>
-                              </div>
-                            </TableCell>
-                            <TableCell className="font-medium">{formatCurrency(p.amount)}</TableCell>
-                            <TableCell>
-                              <Badge className={p.paid ? 'bg-green-500' : 'bg-orange-500'}>
-                                {p.paid ? 'Đã thanh toán' : 'Chưa thanh toán'}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="text-right">
-                              {canTogglePayment && (
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => handlePayment(p.id, !p.paid)}
-                                >
-                                  <CreditCard className="mr-2 h-4 w-4" />
-                                  {p.paid ? 'Chưa thanh toán' : 'Đã thanh toán'}
-                                </Button>
-                              )}
-                            </TableCell>
-                          </TableRow>
-                        )
-                      })}
-                    </TableBody>
-                  </Table>
-                </div>
+                      return (
+                        <div key={p.id} className="p-3 rounded-lg border bg-muted/30 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <Avatar className="h-8 w-8">
+                                <AvatarImage src={p.user?.avatar_url || undefined} />
+                                <AvatarFallback className="bg-gradient-to-br from-violet-500 to-purple-600 text-white text-sm">
+                                  {p.user?.username?.charAt(0).toUpperCase() || '?'}
+                                </AvatarFallback>
+                              </Avatar>
+                              <span className="font-medium text-sm">{p.user?.username || 'Không xác định'}</span>
+                            </div>
+                            <span className="font-bold">{formatCurrency(p.amount)}</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <Badge className={p.paid ? 'bg-green-500' : 'bg-orange-500'}>
+                              {p.paid ? 'Đã thanh toán' : 'Chưa thanh toán'}
+                            </Badge>
+                            {canTogglePayment && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handlePayment(p.id, !p.paid)}
+                              >
+                                {p.paid ? 'Hủy' : 'Xác nhận'}
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+
+                  {/* Desktop Table View */}
+                  <div className="hidden md:block overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Người dùng</TableHead>
+                          <TableHead>Số tiền</TableHead>
+                          <TableHead>Trạng thái</TableHead>
+                          <TableHead className="text-right">Thao tác</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {booking.payments.map((p) => {
+                          const isOwnPayment = p.user_id === currentUser?.id
+                          const canTogglePayment = isAdmin || (canMarkPaid && isOwnPayment)
+
+                          return (
+                            <TableRow key={p.id}>
+                              <TableCell>
+                                <div className="flex items-center gap-3">
+                                  <Avatar>
+                                    <AvatarImage src={p.user?.avatar_url || undefined} />
+                                    <AvatarFallback className="bg-gradient-to-br from-violet-500 to-purple-600 text-white">
+                                      {p.user?.username?.charAt(0).toUpperCase() || '?'}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <span className="font-medium">{p.user?.username || 'Người dùng không xác định'}</span>
+                                </div>
+                              </TableCell>
+                              <TableCell className="font-medium">{formatCurrency(p.amount)}</TableCell>
+                              <TableCell>
+                                <Badge className={p.paid ? 'bg-green-500' : 'bg-orange-500'}>
+                                  {p.paid ? 'Đã thanh toán' : 'Chưa thanh toán'}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-right">
+                                {canTogglePayment && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handlePayment(p.id, !p.paid)}
+                                  >
+                                    <CreditCard className="mr-2 h-4 w-4" />
+                                    {p.paid ? 'Chưa thanh toán' : 'Đã thanh toán'}
+                                  </Button>
+                                )}
+                              </TableCell>
+                            </TableRow>
+                          )
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </>
               )}
             </CardContent>
           </Card>
@@ -678,7 +796,7 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
                 <Label htmlFor="user">Người dùng</Label>
                 <Select value={selectedUserId} onValueChange={(v) => v && setSelectedUserId(v)}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Chọn người dùng" />
+                    <span>{users.find(u => u.id === selectedUserId)?.username || 'Chọn người dùng'}</span>
                   </SelectTrigger>
                   <SelectContent>
                     {users.map((user) => (
@@ -798,7 +916,7 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
                 <Label htmlFor="center_id">Sân cầu</Label>
                 <Select value={editForm.center_id || ''} onValueChange={(v) => v && setEditForm({ ...editForm, center_id: v })}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Chọn sân cầu" />
+                    <span>{centers.find(c => c.id === editForm.center_id)?.name || 'Chọn sân cầu'}</span>
                   </SelectTrigger>
                   <SelectContent>
                     {centers.map((center) => (

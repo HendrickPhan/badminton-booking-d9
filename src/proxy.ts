@@ -3,7 +3,7 @@ import { type NextRequest, NextResponse } from 'next/server'
 // Public paths that don't require authentication
 const publicPaths = ['/login', '/api/auth/login', '/api/auth/me']
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Allow public paths

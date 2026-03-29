@@ -165,7 +165,7 @@ export default function MatchesPage() {
                     }
                   >
                     <SelectTrigger>
-                      <SelectValue />
+                      <span>{formData.match_type === '1v1' ? 'Đơn (1 vs 1)' : 'Đôi (2 vs 2)'}</span>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="1v1">Đơn (1 vs 1)</SelectItem>
@@ -184,7 +184,7 @@ export default function MatchesPage() {
                       }
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Người chơi 1" />
+                        <span>{players.find(p => p.id === formData.team1_player1)?.username || 'Người chơi 1'}</span>
                       </SelectTrigger>
                       <SelectContent>
                         {players.map((p) => (
@@ -203,7 +203,7 @@ export default function MatchesPage() {
                         }
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Người chơi 2" />
+                          <span>{players.find(p => p.id === formData.team1_player2)?.username || 'Người chơi 2'}</span>
                         </SelectTrigger>
                         <SelectContent>
                           {players.map((p) => (
@@ -227,7 +227,7 @@ export default function MatchesPage() {
                       }
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Người chơi 1" />
+                        <span>{players.find(p => p.id === formData.team2_player1)?.username || 'Người chơi 1'}</span>
                       </SelectTrigger>
                       <SelectContent>
                         {players.map((p) => (
@@ -246,7 +246,7 @@ export default function MatchesPage() {
                         }
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Người chơi 2" />
+                          <span>{players.find(p => p.id === formData.team2_player2)?.username || 'Người chơi 2'}</span>
                         </SelectTrigger>
                         <SelectContent>
                           {players.map((p) => (
@@ -306,61 +306,115 @@ export default function MatchesPage() {
               <p className="mt-4 text-muted-foreground">Chưa có trận đấu nào được ghi nhận</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Loại</TableHead>
-                    <TableHead>Đội 1</TableHead>
-                    <TableHead>Tỷ số</TableHead>
-                    <TableHead>Đội 2</TableHead>
-                    <TableHead>Người thắng</TableHead>
-                    <TableHead>Ngày</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {matches.map((match) => (
-                    <TableRow key={match.id}>
-                      <TableCell>
+            <>
+              {/* Mobile Card View */}
+              <div className="flex flex-col gap-3 md:hidden">
+                {matches.map((match) => (
+                  <Card key={match.id} className="border shadow-sm">
+                    <CardContent className="p-4 space-y-3">
+                      <div className="flex items-center justify-between">
                         <Badge variant="outline" className="font-medium">
                           {match.match_type === '1v1' ? 'Đơn' : 'Đôi'}
                         </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="font-medium">
-                          {getPlayerName(match.team1_player1_profile)}
-                          {match.team1_player2_profile && (
-                            <span className="text-muted-foreground"> & {getPlayerName(match.team1_player2_profile)}</span>
-                          )}
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(match.played_at).toLocaleDateString('vi-VN')}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="text-sm">
+                          <p className="font-medium text-blue-600">
+                            {getPlayerName(match.team1_player1_profile)}
+                            {match.team1_player2_profile && (
+                              <span className="text-muted-foreground font-normal"> & {getPlayerName(match.team1_player2_profile)}</span>
+                            )}
+                          </p>
                         </div>
-                      </TableCell>
-                      <TableCell className="font-bold text-lg">
-                        {match.team1_score} - {match.team2_score}
-                      </TableCell>
-                      <TableCell>
-                        <div className="font-medium">
-                          {getPlayerName(match.team2_player1_profile)}
-                          {match.team2_player2_profile && (
-                            <span className="text-muted-foreground"> & {getPlayerName(match.team2_player2_profile)}</span>
-                          )}
+                        <div className="text-lg font-bold px-3">
+                          {match.team1_score} - {match.team2_score}
                         </div>
-                      </TableCell>
-                      <TableCell>
+                        <div className="text-sm text-right">
+                          <p className="font-medium text-red-600">
+                            {getPlayerName(match.team2_player1_profile)}
+                            {match.team2_player2_profile && (
+                              <span className="text-muted-foreground font-normal"> & {getPlayerName(match.team2_player2_profile)}</span>
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="pt-2 border-t">
                         {match.winner_team === 0 ? (
-                          <Badge variant="secondary">Hòa</Badge>
+                          <Badge variant="secondary" className="w-full justify-center">Hòa</Badge>
                         ) : match.winner_team ? (
-                          <div className="flex items-center gap-1">
+                          <div className="flex items-center justify-center gap-1 text-sm font-medium text-green-600">
                             <Trophy className="h-4 w-4 text-yellow-500" />
-                            <span className="font-medium">Đội {match.winner_team}</span>
+                            Đội {match.winner_team} thắng
                           </div>
-                        ) : '-'}
-                      </TableCell>
-                      <TableCell>{new Date(match.played_at).toLocaleDateString('vi-VN')}</TableCell>
+                        ) : (
+                          <span className="text-muted-foreground text-sm">-</span>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              {/* Desktop Table View */}
+              <div className="hidden md:block overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Loại</TableHead>
+                      <TableHead>Đội 1</TableHead>
+                      <TableHead>Tỷ số</TableHead>
+                      <TableHead>Đội 2</TableHead>
+                      <TableHead>Người thắng</TableHead>
+                      <TableHead>Ngày</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                  </TableHeader>
+                  <TableBody>
+                    {matches.map((match) => (
+                      <TableRow key={match.id}>
+                        <TableCell>
+                          <Badge variant="outline" className="font-medium">
+                            {match.match_type === '1v1' ? 'Đơn' : 'Đôi'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="font-medium">
+                            {getPlayerName(match.team1_player1_profile)}
+                            {match.team1_player2_profile && (
+                              <span className="text-muted-foreground"> & {getPlayerName(match.team1_player2_profile)}</span>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="font-bold text-lg">
+                          {match.team1_score} - {match.team2_score}
+                        </TableCell>
+                        <TableCell>
+                          <div className="font-medium">
+                            {getPlayerName(match.team2_player1_profile)}
+                            {match.team2_player2_profile && (
+                              <span className="text-muted-foreground"> & {getPlayerName(match.team2_player2_profile)}</span>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {match.winner_team === 0 ? (
+                            <Badge variant="secondary">Hòa</Badge>
+                          ) : match.winner_team ? (
+                            <div className="flex items-center gap-1">
+                              <Trophy className="h-4 w-4 text-yellow-500" />
+                              <span className="font-medium">Đội {match.winner_team}</span>
+                            </div>
+                          ) : '-'}
+                        </TableCell>
+                        <TableCell>{new Date(match.played_at).toLocaleDateString('vi-VN')}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>

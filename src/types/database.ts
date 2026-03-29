@@ -13,7 +13,7 @@ export interface Database {
         Row: {
           id: string
           username: string
-          email: string | null
+          phone_number: string | null
           password_hash: string
           avatar_url: string | null
           gender: 'male' | 'female' | 'other' | null
@@ -23,7 +23,7 @@ export interface Database {
         Insert: {
           id?: string
           username: string
-          email?: string | null
+          phone_number?: string | null
           password_hash: string
           avatar_url?: string | null
           gender?: 'male' | 'female' | 'other' | null
@@ -33,7 +33,7 @@ export interface Database {
         Update: {
           id?: string
           username?: string
-          email?: string | null
+          phone_number?: string | null
           password_hash?: string
           avatar_url?: string | null
           gender?: 'male' | 'female' | 'other' | null
