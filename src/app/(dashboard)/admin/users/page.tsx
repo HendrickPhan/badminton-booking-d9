@@ -38,6 +38,7 @@ import { useConfirmDialog } from '@/components/confirm-dialog'
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
+  const [submitting, setSubmitting] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingUser, setEditingUser] = useState<User | null>(null)
   const [formData, setFormData] = useState({
@@ -86,50 +87,57 @@ export default function UsersPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (submitting) return
 
-    if (editingUser) {
-      // Update user
-      const response = await fetch('/api/admin/users', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: editingUser.id,
-          username: formData.username,
-          phone_number: formData.phone_number,
-          gender: formData.gender,
-          role: formData.role,
-          password: formData.password || undefined,
-        }),
-      })
+    setSubmitting(true)
 
-      const result = await response.json()
+    try {
+      if (editingUser) {
+        // Update user
+        const response = await fetch('/api/admin/users', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: editingUser.id,
+            username: formData.username,
+            phone_number: formData.phone_number,
+            gender: formData.gender,
+            role: formData.role,
+            password: formData.password || undefined,
+          }),
+        })
 
-      if (!response.ok) {
-        toast.error('Cập nhật thất bại: ' + result.error)
+        const result = await response.json()
+
+        if (!response.ok) {
+          toast.error('Cập nhật thất bại: ' + result.error)
+        } else {
+          toast.success('Đã cập nhật người dùng')
+          fetchUsers()
+          setDialogOpen(false)
+          resetForm()
+        }
       } else {
-        toast.success('Đã cập nhật người dùng')
-        fetchUsers()
-        setDialogOpen(false)
-        resetForm()
-      }
-    } else {
-      // Create new user
-      const response = await fetch('/api/admin/users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      })
+        // Create new user
+        const response = await fetch('/api/admin/users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        })
 
-      const result = await response.json()
+        const result = await response.json()
 
-      if (!response.ok) {
-        toast.error('Tạo người dùng thất bại: ' + result.error)
-      } else {
-        toast.success('Đã tạo người dùng mới')
-        fetchUsers()
-        setDialogOpen(false)
-        resetForm()
+        if (!response.ok) {
+          toast.error('Tạo người dùng thất bại: ' + result.error)
+        } else {
+          toast.success('Đã tạo người dùng mới')
+          fetchUsers()
+          setDialogOpen(false)
+          resetForm()
+        }
       }
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -268,7 +276,9 @@ export default function UsersPage() {
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                   Hủy
                 </Button>
-                <Button type="submit">{editingUser ? 'Cập nhật' : 'Tạo mới'}</Button>
+                <Button type="submit" disabled={submitting}>
+                  {submitting ? 'Đang lưu...' : editingUser ? 'Cập nhật' : 'Tạo mới'}
+                </Button>
               </DialogFooter>
             </form>
           </DialogContent>

@@ -59,6 +59,7 @@ export default function MatchesPage() {
   const [matches, setMatches] = useState<MatchData[]>([])
   const [players, setPlayers] = useState<Player[]>([])
   const [loading, setLoading] = useState(true)
+  const [submitting, setSubmitting] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [formData, setFormData] = useState({
     match_type: '1v1' as '1v1' | '2v2',
@@ -91,30 +92,37 @@ export default function MatchesPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (submitting) return
 
-    const response = await fetch('/api/matches', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        match_type: formData.match_type,
-        team1_player1: formData.team1_player1,
-        team1_player2: formData.match_type === '2v2' ? formData.team1_player2 : null,
-        team2_player1: formData.team2_player1,
-        team2_player2: formData.match_type === '2v2' ? formData.team2_player2 : null,
-        team1_score: parseInt(formData.team1_score),
-        team2_score: parseInt(formData.team2_score),
-      }),
-    })
+    setSubmitting(true)
 
-    const data = await response.json()
+    try {
+      const response = await fetch('/api/matches', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          match_type: formData.match_type,
+          team1_player1: formData.team1_player1,
+          team1_player2: formData.match_type === '2v2' ? formData.team1_player2 : null,
+          team2_player1: formData.team2_player1,
+          team2_player2: formData.match_type === '2v2' ? formData.team2_player2 : null,
+          team1_score: parseInt(formData.team1_score),
+          team2_score: parseInt(formData.team2_score),
+        }),
+      })
 
-    if (!response.ok) {
-      toast.error('Lưu trận đấu thất bại: ' + data.error)
-    } else {
-      toast.success('Đã ghi nhận trận đấu')
-      setDialogOpen(false)
-      resetForm()
-      fetchData()
+      const data = await response.json()
+
+      if (!response.ok) {
+        toast.error('Lưu trận đấu thất bại: ' + data.error)
+      } else {
+        toast.success('Đã ghi nhận trận đấu')
+        setDialogOpen(false)
+        resetForm()
+        fetchData()
+      }
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -285,7 +293,9 @@ export default function MatchesPage() {
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                   Hủy
                 </Button>
-                <Button type="submit">Ghi nhận</Button>
+                <Button type="submit" disabled={submitting}>
+                  {submitting ? 'Đang lưu...' : 'Ghi nhận'}
+                </Button>
               </DialogFooter>
             </form>
           </DialogContent>

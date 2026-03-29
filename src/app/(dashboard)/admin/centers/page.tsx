@@ -37,6 +37,7 @@ interface Center {
 export default function CentersPage() {
   const [centers, setCenters] = useState<Center[]>([])
   const [loading, setLoading] = useState(true)
+  const [submitting, setSubmitting] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingCenter, setEditingCenter] = useState<Center | null>(null)
   const [formData, setFormData] = useState({
@@ -81,34 +82,41 @@ export default function CentersPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (submitting) return
 
-    const url = '/api/admin/centers'
-    const method = editingCenter ? 'PUT' : 'POST'
-    const body = {
-      ...(editingCenter && { id: editingCenter.id }),
-      name: formData.name,
-      address: formData.address || null,
-      latitude: formData.latitude ? parseFloat(formData.latitude) : null,
-      longitude: formData.longitude ? parseFloat(formData.longitude) : null,
+    setSubmitting(true)
+
+    try {
+      const url = '/api/admin/centers'
+      const method = editingCenter ? 'PUT' : 'POST'
+      const body = {
+        ...(editingCenter && { id: editingCenter.id }),
+        name: formData.name,
+        address: formData.address || null,
+        latitude: formData.latitude ? parseFloat(formData.latitude) : null,
+        longitude: formData.longitude ? parseFloat(formData.longitude) : null,
+      }
+
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        toast.error('Thao tác thất bại: ' + data.error)
+        return
+      }
+
+      toast.success(editingCenter ? 'Đã cập nhật sân cầu' : 'Đã tạo sân cầu mới')
+      fetchCenters()
+      setDialogOpen(false)
+      resetForm()
+    } finally {
+      setSubmitting(false)
     }
-
-    const response = await fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    })
-
-    const data = await response.json()
-
-    if (!response.ok) {
-      toast.error('Thao tác thất bại: ' + data.error)
-      return
-    }
-
-    toast.success(editingCenter ? 'Đã cập nhật sân cầu' : 'Đã tạo sân cầu mới')
-    fetchCenters()
-    setDialogOpen(false)
-    resetForm()
   }
 
   const handleDelete = async (centerId: string) => {
@@ -216,7 +224,9 @@ export default function CentersPage() {
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                   Hủy
                 </Button>
-                <Button type="submit">{editingCenter ? 'Cập nhật' : 'Tạo mới'}</Button>
+                <Button type="submit" disabled={submitting}>
+                  {submitting ? 'Đang lưu...' : editingCenter ? 'Cập nhật' : 'Tạo mới'}
+                </Button>
               </DialogFooter>
             </form>
           </DialogContent>

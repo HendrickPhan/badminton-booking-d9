@@ -61,6 +61,7 @@ export default function BookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([])
   const [centers, setCenters] = useState<Center[]>([])
   const [loading, setLoading] = useState(true)
+  const [submitting, setSubmitting] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [pagination, setPagination] = useState({ total: 0, page: 1, limit: 10, totalPages: 0 })
@@ -105,36 +106,43 @@ export default function BookingsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (submitting) return
 
-    const response = await fetch('/api/bookings', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        center_id: formData.center_id || null,
-        match_date: formData.match_date,
-        start_time: formData.start_time,
-        end_time: formData.end_time,
-        courts_count: parseInt(formData.courts_count),
-        court_price: parseFloat(formData.court_price),
-      }),
-    })
+    setSubmitting(true)
 
-    const data = await response.json()
-
-    if (!response.ok) {
-      toast.error('Tạo đặt sân thất bại: ' + data.error)
-    } else {
-      toast.success('Đã tạo đặt sân thành công')
-      fetchBookings()
-      setDialogOpen(false)
-      setFormData({
-        center_id: '',
-        match_date: '',
-        start_time: '',
-        end_time: '',
-        courts_count: '1',
-        court_price: '0',
+    try {
+      const response = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          center_id: formData.center_id || null,
+          match_date: formData.match_date,
+          start_time: formData.start_time,
+          end_time: formData.end_time,
+          courts_count: parseInt(formData.courts_count),
+          court_price: parseFloat(formData.court_price),
+        }),
       })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        toast.error('Tạo đặt sân thất bại: ' + data.error)
+      } else {
+        toast.success('Đã tạo đặt sân thành công')
+        fetchBookings()
+        setDialogOpen(false)
+        setFormData({
+          center_id: '',
+          match_date: '',
+          start_time: '',
+          end_time: '',
+          courts_count: '1',
+          court_price: '0',
+        })
+      }
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -314,7 +322,9 @@ export default function BookingsPage() {
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                   Hủy
                 </Button>
-                <Button type="submit">Tạo mới</Button>
+                <Button type="submit" disabled={submitting}>
+                  {submitting ? 'Đang tạo...' : 'Tạo mới'}
+                </Button>
               </DialogFooter>
             </form>
           </DialogContent>

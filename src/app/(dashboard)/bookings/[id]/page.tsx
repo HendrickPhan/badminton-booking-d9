@@ -89,6 +89,7 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
   const router = useRouter()
   const [booking, setBooking] = useState<BookingDetail | null>(null)
   const [loading, setLoading] = useState(true)
+  const [submitting, setSubmitting] = useState(false)
   const [currentUser, setCurrentUser] = useState<SessionUser | null>(null)
   const [consumableDialog, setConsumableDialog] = useState(false)
   const [addUserDialog, setAddUserDialog] = useState(false)
